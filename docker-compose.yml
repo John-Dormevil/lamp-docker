@@ -1,0 +1,65 @@
+version: '2'
+
+services:
+
+  apache:
+    links:
+      - "db:mysql_server.com"
+      - "php-fpm:php-fpm"
+      - "mailhog:mailhog_server.com"
+    build: 
+      context: './docker/apache'
+      dockerfile: 'Dockerfile'
+    volumes:
+      - './html:/var/www/html'
+      - './docker/apache/httpd-vhosts.conf:/usr/local/apache2/conf/extra/httpd-vhosts.conf'
+      - './docker/apache/httpd.conf:/usr/local/apache2/conf/httpd.conf'
+      - './docker/apache/hosts:/etc/hosts'
+    ports:
+      - '80:80'
+    restart: 'always'
+    working_dir: "/var/www/html"
+    environment:
+      TERM: 'xterm'
+
+  php-fpm:
+    links:
+      - "db:mysql_server.com"
+      - "mailhog:mailhog_server.com"
+    build: 
+      context: './docker/php-fpm'
+      dockerfile: 'Dockerfile_7.1'
+    volumes: 
+      - './html:/var/www/html'
+      - './docker/php-fpm/php.ini:/usr/local/etc/php/php.ini'
+    ports:
+      - '9000:9000'
+
+  pma:
+    links:
+      - "db:mysql_server.com"
+    environment:
+      PMA_HOST: "mysql_server.com"
+    image: "phpmyadmin/phpmyadmin"
+    ports:
+      - "81:80"
+    environment:
+      TERM: 'xterm'
+  
+  mailhog:
+    image: "mailhog/mailhog"
+    ports:
+      - "8002:8025"
+  
+  db:
+    image: mysql:5.7.18
+    volumes:
+      - ./mysql/data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: "FsdfZxr@sd1"
+      MYSQL_DATABASE: "mcel"
+      MYSQL_USER: "mcel"
+      MYSQL_PASSWORD: "Go3006"
+      TERM: 'xterm'

@@ -1,0 +1,26 @@
+FROM php:7.1-fpm-alpine
+
+# Intallation de Bash
+RUN apk add --update bash && rm -rf /var/cache/apk/*
+
+# Installation dependance pour composer
+RUN apk add --update unzip
+
+
+# Installation de composer
+RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" && \
+    php composer-setup.php && \
+    php -r "unlink('composer-setup.php');" && \
+    mv composer.phar /usr/bin/composer
+
+RUN docker-php-ext-install pdo 
+RUN docker-php-ext-install mysqli
+RUN docker-php-ext-install pdo_mysql 
+#RUN docker-php-ext-install pdo_oci 
+#RUN docker-php-ext-install pdo_odbc 
+#RUN docker-php-ext-install pdo_pgsql 
+#RUN docker-php-ext-install pdo_sqlite 
+#RUN docker-php-ext-install pgsql 
+#RUN docker-php-ext-install phar
+
+RUN rm -rf /var/cache/apk/*
